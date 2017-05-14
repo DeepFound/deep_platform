@@ -1,0 +1,9 @@
+PLATFORM/build/
+PLATFORM/target/
+THIRDPARTY/GooglePerfTools/v2.0.0/build/
+THIRDPARTY/GooglePerfTools/v2.0.0/target/
+THIRDPARTY/TinyXML/v1.0.9/CMakeLists.txt
+THIRDPARTY/TinyXML/v1.0.9/build/
+THIRDPARTY/TinyXML/v1.0.9/target/
+THIRDPARTY/jemalloc/v3.6.0/build/
+THIRDPARTY/jemalloc/v3.6.0/target/
