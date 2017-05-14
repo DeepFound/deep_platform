@@ -46,9 +46,9 @@ class UserSpaceReadWriteLock {
 		ulongtype m_readersWaiting;
 		ulongtype m_readersUnlocking;
 		ulongtype m_newReaders;
-		boolean m_writer;
+		uinttype m_writer;
 		WriteRequestMode m_writeRequested;
-		boolean m_writerUnlocking;
+		uinttype m_writerUnlocking;
 
 		template<typename T>
 		FORCE_INLINE static void inc(T* v) {
@@ -146,7 +146,7 @@ class UserSpaceReadWriteLock {
 			const ulongtype readers = dec(&m_readers);
 			// XXX: give the writers a better chance to sneak in (notify the waiting writer of the lack of active readers)
 			if ((readers == 0) && (get(&m_writeRequested) == WRITE_WAIT)) {
-				set(&m_writer, true);
+				set(&m_writer, (uinttype)true);
 			}
 			dec(&m_readersUnlocking);
 		}
@@ -161,7 +161,7 @@ class UserSpaceReadWriteLock {
 			while ((get(&m_readers) != 0) && (get(&m_writer) == false)) {
 				Lock::yield(&state);
 			}
-			set(&m_writer, true);
+			set(&m_writer, (uinttype)true);
 			// XXX: wait until all readers are waiting (note that the get() order matters here)
 			while (get(&m_readersWaiting) != get(&m_readers)) {
 				Lock::yield(&state);
@@ -179,7 +179,7 @@ class UserSpaceReadWriteLock {
 				set(&m_writeRequested, WRITE_IDLE);
 				return false;
 			}
-			set(&m_writer, true);
+			set(&m_writer, (uinttype)true);
 			// XXX: wait until all readers are waiting (note that the get() order matters here)
 			if (get(&m_readersWaiting) != get(&m_readers)) {
 				writeUnlock();
@@ -191,7 +191,7 @@ class UserSpaceReadWriteLock {
 		FORCE_INLINE void writeUnlock() {
 			uinttype state = 1;
 			// XXX: wait for previous writer unlock notification
-			while (condSet(&m_writerUnlocking, false, true) == false) {
+			while (condSet(&m_writerUnlocking, (uinttype)false, (uinttype)true) == false) {
 				Lock::yield(&state);
 			}
 			// XXX: wait for all readers to finish the unlock notification
@@ -200,9 +200,9 @@ class UserSpaceReadWriteLock {
 					Lock::yield(&state);
 				}
 			}
-			set(&m_writer, false);
+			set(&m_writer, (uinttype)false);
 			set(&m_writeRequested, WRITE_IDLE);
-			set(&m_writerUnlocking, false);
+			set(&m_writerUnlocking, (uinttype)false);
 		}
 };
 
